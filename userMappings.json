@@ -1,0 +1,31 @@
+{
+    "github_to_slack" : [
+        {"slack": "aleksandr.skorodumov", "github": "sysradium"},
+        {"slack": "amitabh"      , "github": "amitabhghatak"},
+        {"slack": "andrew.brooks"       , "github": "andyj8"},
+        {"slack": "calixte" , "github": "C2V"},
+        {"slack": "cheryleveritt"      , "github": "CherylEveritt"},
+        {"slack": "chris.hoolihan"      , "github": "chrusty"},
+        {"slack": "chris.valles"        , "github": "christophervalles"},
+        {"slack": "chris.walker"        , "github": "chriswalker"},
+        {"slack": "denery"      , "github": "denery"},
+        {"slack": "denis.lobanov"       , "github": "denislobanov"},
+        {"slack": "elias.ootegem"       , "github": "EVODelavega"},
+        {"slack": "george.christou"     , "github": "gechr"},
+        {"slack": "jeevan"       , "github": "JeevanThandi"},
+        {"slack": "john.daily"          , "github": "jdaily"},
+        {"slack": "jonathan.pentecost"  , "github": "vishen"},
+        {"slack": "lova.katari"         , "github": "lovaraju1986"},
+        {"slack": "maria"        , "github": "marialeroy"},
+        {"slack": "msllrs"        , "github": "msllrs"},
+        {"slack": "michal.suchwalko"    , "github": "Gobonoid"},
+        {"slack": "nlewandowski" , "github": "nicolaslewandowski"},
+        {"slack": "pauline"     , "github": "PaulineBeurier8"},
+        {"slack": "ryan.popa"           , "github": "ryan-popa"},
+        {"slack": "sean"          , "github": "seank90"},
+        {"slack": "uwenickel"          , "github": "uwenickel"},
+        {"slack": "yaser"       , "github": "YaMoh"},
+        {"slack": "yusuf.tran"          , "github": "mumblez"}
+    ]
+}
+
