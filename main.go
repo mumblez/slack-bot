@@ -1,30 +1,39 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"os"
+	"strings"
 
 	"github.com/nlopes/slack"
 )
 
 const (
-	//SHIPPABLE_BOT = "<@devops.bot>" // the bot shippable notifications will be coming from
-	shippableBot = "Shippable"
-	//shippableBot = "yusuf.tran" // the bot shippable notifications will be coming from
-	ciChannel = "yt-notifications-test"
-
+	userMappingsFile = "./userMappings.json"
+	shippableBot     = "Shippable"
+	ciChannel        = "yt-notifications-test"
 	//CI_CHANNEL = "ci-notifications" // the channel the bot will message to
 )
 
-/*
+type githubToSlack struct {
+	Github string `json:"github"`
+	Slack  string `json:"slack"`
+}
 
-Fragile parts:
-- bot username
-- channel
-- google spreadsheet
-- username changes
+type users struct {
+	Collection []githubToSlack `json:"github_to_slack"`
+}
 
-*/
+func findUser(user string, userMap *users) (slackUser string, ok bool) {
+	for _, u := range userMap.Collection {
+		if u.Github == user {
+			return u.Slack, true
+		}
+	}
+	return "", false
+}
 
 func main() {
 
@@ -34,6 +43,17 @@ func main() {
 
 	rtm := api.NewRTM()
 	go rtm.ManageConnection()
+
+	file, err := ioutil.ReadFile(userMappingsFile)
+	if err != nil {
+		fmt.Printf("Error reading userMappings.json file = %+v\n", err)
+		os.Exit(1)
+	}
+
+	userMap := &users{Collection: make([]githubToSlack, 0)}
+	if err := json.Unmarshal(file, &userMap); err != nil {
+		fmt.Printf("err = %+v\n", err)
+	}
 
 Loop:
 	for {
@@ -46,7 +66,20 @@ Loop:
 			case *slack.MessageEvent:
 				info := rtm.GetInfo()
 
-				// todo : add logic to grab user mappings and search for user their first
+				// todo : extract from text, add logic to grab user mappings and search for user their first
+
+				// extract github username from message (2nd line)
+				slackMsg := strings.Split(ev.Attachments[0].Text, "\n")
+				msg := strings.Fields(slackMsg[1])
+				githubUser := msg[len(msg)-1]
+
+				// lookup and check github to slack username mapping
+				slackUser, ok := findUser(githubUser, userMap)
+				if !ok {
+					fmt.Printf("githubUser not found = %+v\n", githubUser)
+					continue
+				}
+
 				users, err := rtm.GetUsers()
 				if err != nil {
 					fmt.Printf("Error getting users: %v\n", err)
@@ -54,8 +87,8 @@ Loop:
 
 				for _, user := range users {
 					// amend logic to lookup github and slack user mapping!
-					if user.Name == "yusuf.tran" && ev.Username == shippableBot && info.GetChannelByID(ev.Channel).Name == ciChannel {
-						_, _, chat, err := rtm.OpenIMChannel(user.Name)
+					if user.Name == slackUser && ev.Username == shippableBot && info.GetChannelByID(ev.Channel).Name == ciChannel {
+						_, _, chat, err := rtm.OpenIMChannel(user.ID)
 						if err != nil {
 							fmt.Printf("Error opening channel to user: %v\n", err)
 						}
@@ -83,17 +116,4 @@ Loop:
 			}
 		}
 	}
-}
-
-func process(rtm *slack.RTM, msg *slack.MessageEvent) {
-	//rtm.SendMessage(rtm.NewOutgoingMessage(msg.Text, msg.Channel))
-	// rtm.SendMessage(rtm.NewOutgoingMessage(msg.Text, "yusuf.tran"))
-	// rtm.SendMessage(rtm.NewOutgoingMessage(msg.Text, "@yusuf.tran"))
-	// params := &slack.PostMessageParameters{}
-	_, _, chat, err := rtm.OpenIMChannel("yusuf.tran")
-	if err != nil {
-		fmt.Printf("error: %v", err)
-	}
-	rtm.SendMessage(rtm.NewOutgoingMessage("123...", chat))
-
 }
